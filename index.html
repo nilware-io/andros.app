@@ -1,4 +1,4 @@
-  <head>
+<head>
     <title>🍋 andros.app</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
@@ -12,120 +12,175 @@
     <link rel="apple-touch-icon" sizes="114x114" href="apple-touch-icon-114x114.png">
     <link rel="apple-touch-icon" href="apple-touch-icon-57x57.png">
     <link rel="apple-touch-startup-image" href="splash-startup.png">
-  </head>
-  <body>
-    <h1>Popular Nearby <time></time></h1>
-  <places>
-  </places>
-  <script>
-    var Places = Array(100).fill({
-      name: "nilware.io",
-      image: "https://lh5.googleusercontent.com/p/AF1QipODjDohgQVzXR4REpFv7XaFUMi7mrjkZiIqQbgo=w408-h306-k-no",
-      address: "Kallidromiou 27, 10681, Athens, Greece",
-      distance: 42,
-      stars: 5,
-      reviews: 6,
-      information: "Consultant",
-      link: "https://goo.gl/maps/3mqEv4Xyt6n2Scst6"
-    });
+</head>
+<body>
+    <h1>pLACES Nearby <time></time></h1>
+    <places>
 
-    let PlacesHtml = document.querySelector("places");
-    Places.forEach( place => {
-        PlacesHtml.innerHTML += [
-            '<a href="', place.link, '">',
-                '<place style="background-image: url(', place.image, ')" data-stars="', place.stars, '", data-reviews="', place.reviews, '">',
-                    "<h2>", place.name, "</h2>",
-                    "<information><h3>", place.information, "</h3></information>",
-                    "<p>",
-                        "<distance>", place.distance, "m 👣</distance>",
-                        "<stars>", place.stars, " 🌟</stars>",
-                        "<reviews>", place.reviews, " 📖</reviews>",
+    </places>
+    <map></map>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjdlzFvMp7li9p9H4u-wV_EoGiTm5x0FM&libraries=places"></script>
+    <script>
+        (function () {
+
+            function fillPlaces(Places) {
+                let PlacesHtml = document.querySelector("places");
+
+                PlacesHtml.innerHTML = "";
+
+                Places.forEach(place => {
+                    PlacesHtml.innerHTML += [
+                        '<a href="', place.link, '">',
+                        '<place style="background-image: url(', place.image, ')" data-stars="', place.stars, '", data-reviews="', place.reviews, '">',
+                        "<h2>", place.name, "</h2>",
+                        "<information><h3>", place.information, "</h3></information>",
+                        "<p>",
+                        "<distance>", place.distance, place.distance && "m 👣", "</distance>", 
+                        "<stars>", place.stars, place.stars && " 🌟", "</stars>",
+                        "<reviews>", place.reviews, place.reviews && " 📖", "</reviews>",
                         '<span>Details >></span>',
-                    "</p>",
-                "</place>",
-            '</a>'
-        ].join("");
-    });
-    
-    let TimeHtml = document.querySelector("time");
-    TimeHtml.innerText = new Date().toLocaleString();
-  </script>
-  <style>
+                        "</p>",
+                        "</place>",
+                        '</a>'
+                    ].join("");
+                });
 
-    body {
-        display: flex;
-        flex-direction: column;
-    }
-    
-    time {
-      float: right;
-    }
+                let TimeHtml = document.querySelector("time");
+                TimeHtml && (TimeHtml.innerText = new Date().toLocaleString());
+            }
 
-    a {
-        text-decoration: none;
-        color: rgb(242,238,246);
-        flex-grow: 1;
-    }
+            fillPlaces([{
+                name: "nilware.io",
+                image: "https://lh5.googleusercontent.com/p/AF1QipODjDohgQVzXR4REpFv7XaFUMi7mrjkZiIqQbgo=w408-h306-k-no",
+                address: "Kallidromiou 27, 10681, Athens, Greece",
+                distance: 42,
+                stars: 5,
+                reviews: 6,
+                information: "Consultant",
+                link: "https://goo.gl/maps/3mqEv4Xyt6n2Scst6"
+            }]);
 
-    a, places {
-        display: flex;
-    }
 
-    places {
-        display: flex;
-        flex-wrap: wrap;
-        flex-grow: 1;
-    }
+            function queryLatLng(loc) {
+                request = {
+                    location: loc,
+                    radius: '300'
+                };
 
-    place {
-        width: 100%;
-        margin: 0.2em;
-        border-radius: 0.5em;
-        overflow: hidden;
+                service = new google.maps.places.PlacesService(map);
+                service.nearbySearch(request, function(googlePlaces, Status) {
+                    if (Status == "OK") {
+                        console.log(googlePlaces);
+                        fillPlaces(googlePlaces.map( place => ({
+                            name: place.name,
+                            image: (place.photos && place.photos[0] && place.photos[0].getUrl()) || "missing-place.jpg",
+                            address: place.formatted_address,
+                            /* distance: 42, */
+                            stars: place.rating,
+                            reviews: place.user_ratings_total,
+                            /*information: "Consultant", */
+                            link: "https://www.google.com/maps/place/?q=place_id:" + place.place_id
+                        })));
+                    } else {
+                        document.querySelector("h1").innerText = "Unable to get places :'(";
+                    }
+                });
+            };
 
-        background: gray;
-        background-size: cover;
-        background-position: 50%;
-        min-height: 7em;
-        min-width: 12em;
-        display: flex;
-        flex-direction: column;
-    }
+            map = new google.maps.Map(document.querySelector('map'));
+  
+            queryLatLng({lat: 37.985991307794286, lng: 23.73862988363849});
 
-    h2 {
-        margin: 0;
-        text-align: center;
-        background-color: rgba(0,0,0,0.5);
-    }
+            navigator.geolocation.getCurrentPosition(function (position) {
+                queryLatLng({lat: position.coords.latitude, lng: position.coords.longitude});
+            }, function (error) {
+                document.querySelector("h1").innerText = "Unable to get location :'(";
+            });
+        })();
+    </script>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+        }
 
-    h3 {
-        font-size: 2em;
-    }
+        time {
+            float: right;
+        }
 
-    information {
-        flex-grow: 1;
-        text-align: center;
-        vertical-align: revert;
-        display: flex;
-        align-items: center;
-        flex-direction: column;
-        background: rgba(244,242,241,0.3);
-        color: rgb(16,32,24);
-    }
+        a {
+            text-decoration: none;
+            color: rgb(242, 238, 246);
+            flex-grow: 1;
+        }
 
-    p {
-        margin: 0;
-        background-color: rgba(0,0,0,0.5);
-    }
+        a,
+        places {
+            display: flex;
+        }
 
-    distance, stars, reviews, span {
-        padding: 0 0.1em;
-    }
+        places {
+            display: flex;
+            flex-wrap: wrap;
+            flex-grow: 1;
+        }
 
-    span {
-        float: right;
-        text-decoration: none;
-        color: lightgray;
-    }
-  </style>
-  </body>
+        place {
+            width: 100%;
+            margin: 0.2em;
+            border-radius: 0.5em;
+            overflow: hidden;
+
+            background: gray;
+            background-size: cover;
+            background-position: 50%;
+            min-height: 12em;
+            min-width: 12em;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h2 {
+            margin: 0;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        h3 {
+            font-size: 2em;
+        }
+
+        information {
+            flex-grow: 1;
+            text-align: center;
+            vertical-align: revert;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            background: rgba(244, 242, 241, 0.3);
+            color: rgb(16, 32, 24);
+        }
+
+        p {
+            margin: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        distance,
+        stars,
+        reviews,
+        span {
+            padding: 0 0.1em;
+        }
+
+        span {
+            float: right;
+            text-decoration: none;
+            color: lightgray;
+        }
+
+        map {
+            display: none;
+        }
+    </style>
+</body>
