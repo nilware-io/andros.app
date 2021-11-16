@@ -1,0 +1,112 @@
+  <head><title>andros.app</title><meta charset="UTF-8"></head>
+  <body>
+  <h1>Popular Nearby</h1>
+  <places>
+  </places>
+  <script>
+    var Places = Array(100).fill({
+      name: "nilware.io",
+      image: "https://lh5.googleusercontent.com/p/AF1QipODjDohgQVzXR4REpFv7XaFUMi7mrjkZiIqQbgo=w408-h306-k-no",
+      address: "Kallidromiou 27, 10681, Athens, Greece",
+      distance: 42,
+      stars: 5,
+      reviews: 6,
+      information: "Consultant",
+      link: "https://goo.gl/maps/3mqEv4Xyt6n2Scst6"
+    });
+
+    let PlacesHtml = document.querySelector("places");
+    Places.forEach( place => {
+        PlacesHtml.innerHTML += [
+            '<a href="', place.link, '">',
+                '<place style="background-image: url(', place.image, ')" data-stars="', place.stars, '", data-reviews="', place.reviews, '">',
+                    "<h2>", place.name, "</h2>",
+                    "<information><h3>", place.information, "</h3></information>",
+                    "<p>",
+                        "<distance>", place.distance, "m 👣</distance>",
+                        "<stars>", place.stars, " 🌟</stars>",
+                        "<reviews>", place.reviews, " 📖</reviews>",
+                        '<span>Details >></span>',
+                    "</p>",
+                "</place>",
+            '</a>'
+        ].join("");
+
+        console.log(place);
+    });
+  </script>
+  <style>
+
+    body {
+        display: flex;
+        flex-direction: column;
+    }
+
+    a {
+        text-decoration: none;
+        color: rgb(242,238,246);
+        flex-grow: 1;
+    }
+
+    a, places {
+        display: flex;
+    }
+
+    places {
+        display: flex;
+        flex-wrap: wrap;
+        flex-grow: 1;
+    }
+
+    place {
+        width: 100%;
+        margin: 0.2em;
+        border-radius: 0.5em;
+        overflow: hidden;
+
+        background: gray;
+        background-size: cover;
+        background-position: 50%;
+        min-height: 7em;
+        min-width: 12em;
+        display: flex;
+        flex-direction: column;
+    }
+
+    h2 {
+        margin: 0;
+        text-align: center;
+        background-color: rgba(0,0,0,0.5);
+    }
+
+    h3 {
+        font-size: 2em;
+    }
+
+    information {
+        flex-grow: 1;
+        text-align: center;
+        vertical-align: revert;
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        background: rgba(244,242,241,0.3);
+        color: rgb(16,32,24);
+    }
+
+    p {
+        margin: 0;
+        background-color: rgba(0,0,0,0.5);
+    }
+
+    distance, stars, reviews, span {
+        padding: 0 0.1em;
+    }
+
+    span {
+        float: right;
+        text-decoration: none;
+        color: lightgray;
+    }
+  </style>
+  </body>
